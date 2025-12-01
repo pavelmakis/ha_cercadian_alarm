@@ -22,9 +22,9 @@ fields:
     selector:
       color_temp:
         unit: kelvin
-        min: 2500
+        min: 2000
         max: 6500
-    default: 2500
+    default: 2000
     name: Warmest Kelvin
   max_brightness_pct:
     description: Maximum brightness in percent to reach by the end of the script
