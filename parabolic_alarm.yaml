@@ -109,6 +109,17 @@ conditions:
   conditions: !input conditions
 
 
+variables:
+  steps: "{{ duration * steps_per_minute }}"
+  min_brightness: "{{ 3 }}"
+  max_brightness: "{{ max_brightness_pct * 2.55 }}"
+  start_g_color: "{{ 172 }}"
+  stop_g_color: "{{ 205 }}"
+  g_color_step: "{{ (stop_g_color - start_g_color) / steps }}"
+  kelvin_step: "{{ (target_kelvin - start_kelvin) / steps }}"
+  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
+  start_time: "{{ as_timestamp(now()) }}"
+  individual_step: "{{ 60 / steps_per_minute }}"
 
 
 
@@ -121,10 +132,43 @@ action:
       brightness_pct: "{{ min_brightness }}"
       rgb_color:
         - 234
-        - 175
+        - "{{ start_g_color  }}"
         - 43
       entity_id: !input target_light
 
+  - repeat:
+      until:
+        - condition: or
+          conditions:
+            - condition: template
+              value_template: "{{ is_state(target_light, 'off') }}"
+            - condition: template
+              value_template: "{{ state_attr(target_light, 'rgb_color')[1] >= stop_g_color }}"
+
+      sequence:
+        - variables:
+            steps_to_now: |-
+              {{ ((as_timestamp(now()) - start_time) / individual_step) |
+                round(0, "ceil") }}
+            brightness: >-
+              {{ min_brightness + (bright_step * steps_to_now) | round(0,
+              'ceil') }}
+            kelvin: "{{ start_kelvin + (kelvin_step * steps_to_now) }}"
+        - delay:
+            seconds: "{{ individual_step }}"
+        - if:
+            - condition: template
+              value_template: "{{ not is_state(target_light, 'off') }}"
+          then:
+            - data:
+                brightness: "{{ brightness }}"
+                rgb_color:
+                  - 234
+                  - "{{ start_g_color + (g_color_step * steps_to_now) }}"
+                  - 43
+              target:
+                entity_id: !input target_light
+              action: light.turn_on
 
 
 
