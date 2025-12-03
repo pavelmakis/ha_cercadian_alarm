@@ -143,7 +143,7 @@ actions:
             - condition: template
               value_template: "{{ is_state(target_light, 'off') }}"
             - condition: template
-              value_template: "{{ state_attr(target_light, 'rgb_color') is None or state_attr(target_light, 'rgb_color')[1] >= stop_g_color }}"
+              value_template: "{{ state_attr(target_light, 'rgb_color')[1] >= stop_g_color }}"
 
       sequence:
         - variables:
