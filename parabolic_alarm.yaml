@@ -126,7 +126,7 @@ variables:
 
 
 
-actions:
+action:
   - action: light.turn_on
     data:
       brightness_pct: "{{ min_brightness }}"
