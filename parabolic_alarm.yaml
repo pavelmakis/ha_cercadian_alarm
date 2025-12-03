@@ -1,20 +1,15 @@
 blueprint:
-  name: Parabolic Alarm Automation
-  description: Turn a light on based on a start time, whether it is a workday and whether a person is home. This is to match the sunrise and allow for a natural wake up.
+  name: Рассвет
+  description: Campanion Script to the parabolic alarm automation blueprint.
   domain: automation
   input:
-    pre_action:
-      name: 🎮 Pre Script Action
-      description: An action you want to perform before the lights turn on.
-      default: []
-      selector:
-        action: {}
     conditions:
-      name: Conditions
-      description: Set your own conditions for this automation. All conditions must pass unless you add your own OR block
+      name: Условия
+      description: Пользовательские условия запуска автоматизации
       default: []
       selector:
         condition:
+
     alarm_start_time:
       name: 🕒 Start Time
       description:
@@ -28,212 +23,154 @@ blueprint:
             - domain: sensor
               device_class: timestamp
           multiple: false
+
     offset_from_start_time:
       name: 🏁 Offset From Start Time
       description: Adjust the amount of time before or after the set Start Time value to start the transition. Enter seconds or HH:MM:SS format (e.g. "-00:05:00" to start 5 minutes before the Start Time. Useful if the start time comes from an alarm entity and you want to adjust where in the brightness cycle you are when the alarm goes off. See https://www.home-assistant.io/docs/automation/trigger/#sensors-of-datetime-device-class-with-offsets for caution about using positive offsets.
       default: "-00:00:00"
       selector:
         text:
-    alarm_script:
-      name: 📄 Script to trigger
-      description: Light Alarm Script
+
+
+
+    target_kelvin:
+      description: Теплота холодного света. Это конечное значение - наиболее белое
       selector:
-        entity:
-          filter:
-            - domain:
-                - script
-          multiple: false
+        color_temp:
+          unit: kelvin
+      default: 6500
+      name: Coldest Kelvin
+
+    start_kelvin:
+      description: >-
+        This is the start value. If the light is on the current value from the
+        state of the light will be used and this will be ignored.
+      selector:
+        color_temp:
+          unit: kelvin
+          min: 2500
+          max: 6500
+      default: 2500
+      name: Warmest Kelvin
+
+    max_brightness_pct:
+      description: Максимальная яркость в процентах в конце работы автоматизации
+      selector:
+        number:
+          min: 1
+          max: 100
+      default: 80
+      name: Максимальная яркость
+
+    duration:
+      description: Длительность работы автоматизации в минутах
+      selector:
+        number:
+          min: 1
+          max: 60
+      default: 10
+      name: Длительность работы
+
+
+    steps_per_minute:
+      description: Количество шагов изменения света в минуту
+      selector:
+        number:
+          min: 1
+          max: 12
+      default: 12
+      name: Шагов в минуту
+
     target_light:
-      description: A single light or group
+      description: Один светильник или группа светильников
       selector:
         entity:
           filter:
             domain: light
-      name: Target Light
+      name: Целевой светильник
+
     light_timeout:
-      name: ⏱️ Timeout
-      description: Light will turn off after this time on last run. Setting this to 0 will leave the light on.
-      default: 10
+      description: Минуты, которые будет работать свет после завершения автоматизации. Значение 0 означает, что свет не будет выключен
       selector:
         number:
-          min: 0.0
-          max: 60.0
-          step: 1.0
-          mode: slider
-    steps_per_minute:
-      name: 🏃‍♂️ Steps per minute for all runs
-      description:
-        Used for configuring percentage of each step for brightness and
-        color temperature
-      default: 12
-      selector:
-        number:
-          min: 1.0
-          max: 60.0
-          step: 1.0
-          mode: slider
-    start_brightness:
-      name: ⭐️ Start Brightness
-      description: Starting value for brightness
-      selector:
-        number:
-          min: 1.0
-          max: 100.0
-          step: 1.0
-          mode: slider
-      default: 1.0
-    start_kelvin_temp:
-      description: Start Kelvin value (warm) for 1st run
-      selector:
-        color_temp:
-          unit: kelvin
-      default: 2000
-      name: ☀️ Starting Kelvin
-    target_kelvin_1:
-      description: Target Kelvin value (cold) for the end of the first run
-      selector:
-        color_temp:
-          unit: kelvin
-      default: 2300
-      name: ☀️ Target Kelvin 1
-    max_brightness_1:
-      name: ⭐️ Maximum Brightness 1
-      description: Finish value for first run
-      selector:
-        number:
-          min: 1.0
-          max: 100.0
-          step: 1.0
-          mode: slider
-      default: 10
-    alarm_length_1:
-      name: ⏰ Alarm Length 1
-      description: This is the start to finish time for the first run
-      selector:
-        number:
-          min: 1.0
-          max: 60.0
-          step: 1.0
-          mode: slider
-      default: 10
-    target_kelvin_2:
-      description: Target Kelvin value (cold) for second run
-      selector:
-        color_temp:
-          unit: kelvin
-      default: 2500
-      name: 🌗 Target Kelvin 2
-    max_brightness_2:
-      name: ⭐️ Maximum Brightness 2
-      description: Finish value for second run
-      selector:
-        number:
-          min: 1.0
-          max: 100.0
-          step: 1.0
-          mode: slider
-      default: 50
-    alarm_length_2:
-      name: ⏰ Alarm length 2
-      description: This is the start to finish time for the second run
-      selector:
-        number:
-          min: 1.0
-          max: 60.0
-          step: 1.0
-          mode: slider
-      default: 10
-    target_kelvin_3:
-      description: Target Kelvin value (cold) for third run
-      selector:
-        color_temp:
-          unit: kelvin
-      default: 3000
-      name: 🌑 Target Kelvin 3
-    max_brightness_3:
-      name: ⭐️ Maximum Brightness 3
-      description: Finish value for third and final run
-      selector:
-        number:
-          min: 1.0
-          max: 100.0
-          step: 1.0
-          mode: slider
-      default: 100
-    alarm_length_3:
-      name: ⏰ Alarm Length 3
-      description: This is the start to finish time for the third run
-      selector:
-        number:
-          min: 1.0
-          max: 60.0
-          step: 1.0
-          mode: slider
+          min: 0
+          max: 60
       default: 5
-    post_action:
-      name: 🎮 Post Script Action
-      description: An action you want to run after the script has finished
-      default: []
-      selector:
-        action: {}
-  source_url: https://github.com/steku/ha_cercadian_alarm/blob/main/parabolic_alarm.yaml
+      name: Таймаут работы света
+
 trigger:
   - trigger: time
     at:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
+
 condition:
   condition: and
   conditions: !input conditions
-action:
-  - choose:
-      - conditions: []
-        sequence: !input pre_action
+
+
+variables:
+  steps: "{{ duration * steps_per_minute }}"
+  min_brightness: 3
+  max_brightness: "{{ max_brightness_pct * 2.55 }}"
+  start_g_color: 172
+  stop_g_color: 205
+  g_color_step: "{{ (stop_g_color - start_g_color) / steps }}"
+  kelvin_step: "{{ (target_kelvin - start_kelvin) / steps }}"
+  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
+  start_time: "{{ as_timestamp(now()) }}"
+  individual_step: "{{ 60 / steps_per_minute }}"
+
+
+
+
+
+
+actions:
   - action: light.turn_on
     data:
-      color_temp_kelvin: !input start_kelvin_temp
-      brightness_pct: !input start_brightness
+      brightness_pct: "{{ min_brightness }}"
+      rgb_color:
+        - 234
+        - "{{ start_g_color  }}"
+        - 43
       entity_id: !input target_light
-  - delay:
-      seconds: 5
-  - action: !input alarm_script
-    data:
-      target_kelvin: !input target_kelvin_1
-      start_kelvin: !input start_kelvin_temp
-      max_brightness_pct: !input max_brightness_1
-      alarm_length: !input alarm_length_1
-      steps_per_minute: !input steps_per_minute
-      light_timeout: 0
-      target_light: !input target_light
-  - if:
-      - condition: state
-        state: "on"
-        entity_id: !input target_light
-    then:
-      - action: !input alarm_script
-        data:
-          target_kelvin: !input target_kelvin_2
-          start_kelvin: !input target_kelvin_1
-          max_brightness_pct: !input max_brightness_2
-          alarm_length: !input alarm_length_2
-          steps_per_minute: !input steps_per_minute
-          light_timeout: 0
-          target_light: !input target_light
-  - if:
-      - condition: state
-        state: "on"
-        entity_id: !input target_light
-    then:
-      - action: !input alarm_script
-        data:
-          target_kelvin: !input target_kelvin_3
-          start_kelvin: !input target_kelvin_2
-          max_brightness_pct: !input max_brightness_3
-          alarm_length: !input alarm_length_3
-          steps_per_minute: !input steps_per_minute
-          light_timeout: !input light_timeout
-          target_light: !input target_light
-      - choose:
-          - conditions: []
-            sequence: !input post_action
+
+  - repeat:
+      until:
+        - condition: or
+          conditions:
+            - condition: template
+              value_template: "{{ is_state(target_light, 'off') }}"
+            - condition: template
+              value_template: "{{ state_attr(target_light, 'rgb_color') is None or state_attr(target_light, 'rgb_color')[1] >= stop_g_color }}"
+
+      sequence:
+        - variables:
+            steps_to_now: |-
+              {{ ((as_timestamp(now()) - start_time) / individual_step) |
+                round(0, "ceil") }}
+            brightness: >-
+              {{ min_brightness + (bright_step * steps_to_now) | round(0,
+              'ceil') }}
+            kelvin: "{{ start_kelvin + (kelvin_step * steps_to_now) }}"
+        - delay:
+            seconds: "{{ individual_step }}"
+        - if:
+            - condition: template
+              value_template: "{{ not is_state(target_light, 'off') }}"
+          then:
+            - data:
+                brightness: "{{ brightness }}"
+                rgb_color:
+                  - 234
+                  - "{{ start_g_color + (g_color_step * steps_to_now) }}"
+                  - 43
+              target:
+                entity_id: !input target_light
+              action: light.turn_on
+
+
+
+
 mode: single
