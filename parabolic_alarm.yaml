@@ -104,9 +104,6 @@ triggers:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
 
-conditions:
-  condition: and
-  conditions: !input conditions
 
 
 variables:
