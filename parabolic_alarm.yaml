@@ -3,6 +3,13 @@ blueprint:
   description: Campanion Script to the parabolic alarm automation blueprint.
   domain: automation
   input:
+    conditions:
+      name: Дополнительные условия
+      description: Дополнительные условия для запуска автоматизации
+      default: []
+      selector:
+        condition: template
+
     alarm_start_time:
       name: 🕒 Start Time
       description:
@@ -74,6 +81,10 @@ triggers:
     at:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
+
+condition:
+  condition: and
+  conditions: !input conditions
 
 variables:
   max_brightness_pct: !input max_brightness_pct
