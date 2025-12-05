@@ -122,7 +122,6 @@ variables:
 actions:
   - data:
       rgb_color: "{{ [255, start_g_color, start_b_color] }}"
-      transition: 2
       brightness_pct: "{{ min_brightness_pct }}"
     target:
       entity_id: "{{ target_light }}"
