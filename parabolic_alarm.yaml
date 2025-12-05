@@ -141,9 +141,10 @@ variables:
   target_light: !input target_light
   light_timeout: !input light_timeout
 
+  steps: "{{ duration * steps_per_minute }}"
   min_brightness: "{{ min_brightness_pct * 2.55 }}"
   max_brightness: "{{ max_brightness_pct * 2.55 }}"
-  steps: "{{ duration * steps_per_minute }}"
+  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
 
   start_g_color: !input start_g_color
   end_g_color: !input end_g_color
