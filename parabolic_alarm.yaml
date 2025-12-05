@@ -86,7 +86,7 @@ variables:
   bright_step: "{{ (max_brightness - min_brightness) / steps }}"
   start_time: "{{ as_timestamp(now()) }}"
   individual_step: "{{ 60 / steps_per_minute }}"
-sequence:
+actions:
   - data:
       brightness: "{{ min_brightness }}"
       rgb_color: "{{ [255, start_g_color, start_b_color] }}"
