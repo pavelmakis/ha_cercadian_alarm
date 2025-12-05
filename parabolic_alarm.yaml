@@ -100,17 +100,6 @@ triggers:
     at:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
-variables:
-  steps: "{{ duration * steps_per_minute }}"
-  min_brightness: "{{ 3 }}"
-  max_brightness: "{{ max_brightness_pct * 2.55 }}"
-  start_g_color: "{{ 172 }}"
-  stop_g_color: "{{ 205 }}"
-  g_color_step: "{{ (stop_g_color - start_g_color) / steps }}"
-  kelvin_step: "{{ (target_kelvin - start_kelvin) / steps }}"
-  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
-  start_time: "{{ as_timestamp(now()) }}"
-  individual_step: "{{ 60 / steps_per_minute }}"
 actions:
   - action: light.turn_on
     data:
