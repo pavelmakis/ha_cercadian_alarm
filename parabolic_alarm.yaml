@@ -31,8 +31,6 @@ blueprint:
       selector:
         text:
 
-
-
     target_kelvin:
       description: Теплота холодного света. Это конечное значение - наиболее белое
       selector:
@@ -97,15 +95,11 @@ blueprint:
           max: 60
       default: 5
       name: Таймаут работы света
-
 triggers:
   - trigger: time
     at:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
-
-
-
 variables:
   steps: "{{ duration * steps_per_minute }}"
   min_brightness: "{{ 3 }}"
@@ -117,54 +111,10 @@ variables:
   bright_step: "{{ (max_brightness - min_brightness) / steps }}"
   start_time: "{{ as_timestamp(now()) }}"
   individual_step: "{{ 60 / steps_per_minute }}"
-
-
-
-
-
-
 actions:
   - action: light.turn_on
     data:
       brightness_pct: "{{ min_brightness }}"
       rgb_color: "{{ [234, start_g_color, 43] }}"
       entity_id: !input target_light
-
-  - repeat:
-      until:
-        - condition: or
-          conditions:
-            - condition: template
-              value_template: "{{ is_state(target_light, 'off') }}"
-            - condition: template
-              value_template: "{{ state_attr(target_light, 'rgb_color')[1] >= stop_g_color }}"
-
-      sequence:
-        - variables:
-            steps_to_now: |-
-              {{ ((as_timestamp(now()) - start_time) / individual_step) |
-                round(0, "ceil") }}
-            brightness: >-
-              {{ min_brightness + (bright_step * steps_to_now) | round(0,
-              'ceil') }}
-            kelvin: "{{ start_kelvin + (kelvin_step * steps_to_now) }}"
-        - delay:
-            seconds: "{{ individual_step }}"
-        - if:
-            - condition: template
-              value_template: "{{ not is_state(target_light, 'off') }}"
-          then:
-            - data:
-                brightness: "{{ brightness }}"
-                rgb_color:
-                  - 234
-                  - "{{ start_g_color + (g_color_step * steps_to_now) }}"
-                  - 43
-              target:
-                entity_id: !input target_light
-              action: light.turn_on
-
-
-
-
 mode: single
