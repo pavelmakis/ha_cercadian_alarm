@@ -75,9 +75,6 @@ blueprint:
             domain: light
       name: Целевой светильник
 
-
-  
-
     light_timeout:
       description: Минуты, которые будет работать свет после завершения автоматизации. Значение 0 означает, что свет не будет выключен
       selector:
@@ -86,6 +83,43 @@ blueprint:
           max: 60
       default: 5
       name: Таймаут работы света
+
+    start_g_color:
+      description: Начальное значение зеленого цвета (0-255)
+      selector:
+        number:
+          min: 0
+          max: 255
+      default: 0
+      name: Начальное значение зеленого цвета
+
+    end_g_color:
+      description: Конечное значение зеленого цвета (0-255)
+      selector:
+        number:
+          min: 0
+          max: 255
+      default: 190
+      name: Конечное значение зеленого цвета
+
+    start_b_color:
+      description: Начальное значение синего цвета (0-255)
+      selector:
+        number:
+          min: 0
+          max: 255
+      default: 0
+      name: Начальное значение синего цвета
+
+    end_b_color:
+      description: Конечное значение синего цвета (0-255)
+      selector:
+        number:
+          min: 0
+          max: 255
+      default: 100
+      name: Конечное значение синего цвета
+
 
 triggers:
   - trigger: time
@@ -108,12 +142,12 @@ variables:
   steps: "{{ duration * steps_per_minute }}"
   bright_step_pct: "{{ (max_brightness_pct - min_brightness_pct) / steps }}"
 
-  start_g_color: "{{ 0 }}"
-  end_g_color: "{{ 180 }}"
+  start_g_color: !input start_g_color
+  end_g_color: !input end_g_color
   g_color_step: "{{ (end_g_color - start_g_color) / steps }}"
 
-  start_b_color: "{{ 0 }}"
-  end_b_color: "{{ 60 }}"
+  start_b_color: !input start_b_color
+  end_b_color: !input end_b_color
   b_color_step: "{{ (end_b_color - start_b_color) / steps }}"
 
   start_time: "{{ as_timestamp(now()) }}"
