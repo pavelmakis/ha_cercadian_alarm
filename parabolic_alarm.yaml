@@ -74,6 +74,12 @@ triggers:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
 variables:
+  max_brightness_pct: !input max_brightness_pct
+  duration: !input duration
+  steps_per_minute: !input steps_per_minute
+  target_light: !input target_light
+  light_timeout: !input light_timeout
+
   steps: "{{ duration * steps_per_minute }}"
   min_brightness: 3
   max_brightness: "{{ max_brightness_pct * 2.55 }}"
