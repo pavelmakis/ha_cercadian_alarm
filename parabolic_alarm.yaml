@@ -134,6 +134,8 @@ condition:
   conditions: !input conditions
 
 variables:
+  min_brightness_pct: !input min_brightness_pct
+  max_brightness_pct: !input max_brightness_pct
   duration: !input duration
   steps_per_minute: !input steps_per_minute
   target_light: !input target_light
