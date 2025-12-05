@@ -152,7 +152,7 @@ actions:
             - data:
                 brightness: "{{ brightness }}"
                 rgb_color: "{{ [255, g_color, b_color] }}"
-                transition: "{{ individual_step }}"
+                transition: "{{ individual_step / 2 }}"
               target:
                 entity_id: "{{ target_light }}"
               action: light.turn_on
