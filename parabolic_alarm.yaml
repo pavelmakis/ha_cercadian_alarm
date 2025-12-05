@@ -134,15 +134,14 @@ condition:
   conditions: !input conditions
 
 variables:
-  min_brightness_pct: !input min_brightness_pct
-  max_brightness_pct: !input max_brightness_pct
   duration: !input duration
   steps_per_minute: !input steps_per_minute
   target_light: !input target_light
   light_timeout: !input light_timeout
 
+  min_brightness: "{{ min_brightness_pct * 2.55 }}"
+  max_brightness: "{{ max_brightness_pct * 2.55 }}"
   steps: "{{ duration * steps_per_minute }}"
-  bright_step_pct: "{{ (max_brightness_pct - min_brightness_pct) / steps }}"
 
   start_g_color: !input start_g_color
   end_g_color: !input end_g_color
@@ -157,8 +156,8 @@ variables:
 
 actions:
   - data:
+      brightness: "{{ min_brightness }}"
       rgb_color: "{{ [255, start_g_color, start_b_color] }}"
-      brightness_pct: "{{ min_brightness_pct }}"
     target:
       entity_id: "{{ target_light }}"
     action: light.turn_on
@@ -169,7 +168,7 @@ actions:
             - condition: template
               value_template: "{{ is_state(target_light, 'off') }}"
             - condition: template
-              value_template: "{{ state_attr(target_light, 'brightness') >= (max_brightness_pct * 2.55) }}"
+              value_template: "{{ state_attr(target_light, 'brightness') >= max_brightness }}"
             - condition: template
               value_template: >-
                 {{ (((as_timestamp(now()) - start_time) / individual_step) |
@@ -179,6 +178,9 @@ actions:
             steps_to_now: |-
               {{ ((as_timestamp(now()) - start_time) / individual_step) |
                 round(0, "ceil") }}
+            brightness: >-
+              {{ min_brightness + (bright_step * steps_to_now) | round(0,
+              'ceil') }}
             g_color: >-
               {{ start_g_color + (g_color_step * steps_to_now) | round(0,
               'ceil') }}
@@ -192,9 +194,9 @@ actions:
               value_template: "{{ not is_state(target_light, 'off') }}"
           then:
             - data:
+                brightness: "{{ brightness }}"
                 rgb_color: "{{ [255, g_color, b_color] }}"
                 transition: "{{ individual_step / 2 }}"
-                brightness_step_pct: "{{ bright_step_pct }}"
               target:
                 entity_id: "{{ target_light }}"
               action: light.turn_on
