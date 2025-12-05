@@ -68,11 +68,13 @@ blueprint:
           max: 60
       default: 5
       name: Таймаут работы света
+
 triggers:
   - trigger: time
     at:
       entity_id: !input alarm_start_time
       offset: !input offset_from_start_time
+
 variables:
   max_brightness_pct: !input max_brightness_pct
   duration: !input duration
@@ -83,15 +85,19 @@ variables:
   steps: "{{ duration * steps_per_minute }}"
   min_brightness: 3
   max_brightness: "{{ max_brightness_pct * 2.55 }}"
+  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
+
   start_g_color: "{{ 0 }}"
   end_g_color: "{{ 180 }}"
   g_color_step: "{{ (end_g_color - start_g_color) / steps }}"
+
   start_b_color: "{{ 0 }}"
   end_b_color: "{{ 60 }}"
   b_color_step: "{{ (end_b_color - start_b_color) / steps }}"
-  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
+
   start_time: "{{ as_timestamp(now()) }}"
   individual_step: "{{ 60 / steps_per_minute }}"
+
 actions:
   - data:
       brightness: "{{ min_brightness }}"
