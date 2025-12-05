@@ -31,14 +31,23 @@ blueprint:
       selector:
         text:
 
+    min_brightness_pct:
+      description: Минимальная яркость в процентах в начале работы автоматизации
+      selector:
+        number:
+          min: 1
+          max: 30
+      default: 1
+      name: Начальная яркость
+
     max_brightness_pct:
       description: Максимальная яркость в процентах в конце работы автоматизации
       selector:
         number:
-          min: 1
+          min: 31
           max: 100
       default: 80
-      name: Максимальная яркость
+      name: Конечная яркость
 
     duration:
       description: Длительность работы автоматизации в минутах
@@ -48,7 +57,6 @@ blueprint:
           max: 60
       default: 10
       name: Длительность работы
-
 
     steps_per_minute:
       description: Количество шагов изменения света в минуту
@@ -66,6 +74,9 @@ blueprint:
           filter:
             domain: light
       name: Целевой светильник
+
+
+  
 
     light_timeout:
       description: Минуты, которые будет работать свет после завершения автоматизации. Значение 0 означает, что свет не будет выключен
@@ -87,6 +98,7 @@ condition:
   conditions: !input conditions
 
 variables:
+  min_brightness_pct: !input min_brightness_pct
   max_brightness_pct: !input max_brightness_pct
   duration: !input duration
   steps_per_minute: !input steps_per_minute
@@ -94,9 +106,7 @@ variables:
   light_timeout: !input light_timeout
 
   steps: "{{ duration * steps_per_minute }}"
-  min_brightness: 3
-  max_brightness: "{{ max_brightness_pct * 2.55 }}"
-  bright_step: "{{ (max_brightness - min_brightness) / steps }}"
+  bright_step_pct: "{{ (max_brightness_pct - min_brightness_pct) / steps }}"
 
   start_g_color: "{{ 0 }}"
   end_g_color: "{{ 180 }}"
@@ -111,9 +121,9 @@ variables:
 
 actions:
   - data:
-      brightness: "{{ min_brightness }}"
       rgb_color: "{{ [255, start_g_color, start_b_color] }}"
       transition: 2
+      brightness_pct: "{{ min_brightness_pct }}"
     target:
       entity_id: "{{ target_light }}"
     action: light.turn_on
@@ -124,7 +134,7 @@ actions:
             - condition: template
               value_template: "{{ is_state(target_light, 'off') }}"
             - condition: template
-              value_template: "{{ state_attr(target_light, 'brightness') >= max_brightness }}"
+              value_template: "{{ state_attr(target_light, 'brightness') >= (max_brightness_pct * 2.55) }}"
             - condition: template
               value_template: >-
                 {{ (((as_timestamp(now()) - start_time) / individual_step) |
@@ -134,9 +144,6 @@ actions:
             steps_to_now: |-
               {{ ((as_timestamp(now()) - start_time) / individual_step) |
                 round(0, "ceil") }}
-            brightness: >-
-              {{ min_brightness + (bright_step * steps_to_now) | round(0,
-              'ceil') }}
             g_color: >-
               {{ start_g_color + (g_color_step * steps_to_now) | round(0,
               'ceil') }}
@@ -150,9 +157,9 @@ actions:
               value_template: "{{ not is_state(target_light, 'off') }}"
           then:
             - data:
-                brightness: "{{ brightness }}"
                 rgb_color: "{{ [255, g_color, b_color] }}"
                 transition: "{{ individual_step / 2 }}"
+                brightness_step_pct: "{{ bright_step_pct }}"
               target:
                 entity_id: "{{ target_light }}"
               action: light.turn_on
